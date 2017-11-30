@@ -15,6 +15,7 @@
 
 #define debug 0
 
+char* itoa(unsigned int i, char b[]);
 /****************************************************************************
  * Types
  */
@@ -29,7 +30,6 @@ typedef signed   char   int8_t;    // 8 Bit
  * Interrupt handling
  */
 typedef void(*isr_ptr_t)(void);
-char* itoa(uint32_t i, char b[]);
 
 void     irq_enable(void);
 void     irq_disable(void);

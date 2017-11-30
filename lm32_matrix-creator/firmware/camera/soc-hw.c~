@@ -16,7 +16,7 @@ isr_ptr_t isr_table[32];
 
 uint32_t count;
 
-char* itoa(uint32_t i, char b[]){
+char itoa(uint32_t i, char b[]){
     char const digit[] = "0123456789";
     char* p = b;
     if(i<0){

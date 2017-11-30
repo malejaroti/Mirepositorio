@@ -1,0 +1,7 @@
+INFILE=/home/nestea/Documentos/FinalDigital/pH-y-teclado/lm32_matrix-creator/build/system-routed.ncd
+OUTFILE=/home/nestea/Documentos/FinalDigital/pH-y-teclado/lm32_matrix-creator/build/system.bit
+FAMILY=Spartan6
+PART=xc6slx4-2tqg144
+WORKINGDIR=/home/nestea/Documentos/FinalDigital/pH-y-teclado/lm32_matrix-creator/build
+LICENSE=WebPack
+USER_INFO=211301591_0_0_737

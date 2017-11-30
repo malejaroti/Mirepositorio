@@ -1,50 +1,44 @@
-MMDIR=../..
-include $(MMDIR)/firmware/include.mak
-
-OBJECTS=crt0ram.o main.o soc-hw.o 
-SEGMENTS= -j .text -j .rodata -j .data
-LIBS=$(MMDIR)/firmware/libbase/libbase-light.a 
+LM32_CC=lm32-rtems4.11-gcc
+LM32_LD=lm32-rtems4.11-ld
+LM32_OBJCOPY=lm32-rtems4.11-objcopy
+LM32_OBJDUMP=lm32-rtems4.11-objdump
 
 SREC2VRAM ?= ../../tools/srec2vram/srec2vram
+VRAMFILE=image.ram
 
-all: image.ram
+CFLAGS=-MMD -O2 -Wall -g -s -fomit-frame-pointer -mbarrel-shift-enabled -msign-extend-enabled  -mmultiply-enabled -mdivide-enabled 
+LDFLAGS=-nostdlib -nodefaultlibs -Tlinker.ld 
+SEGMENTS = -j .text -j .rodata -j .data
 
-%.ram: %.srec
-	$(MAKE) -C $(MMDIR)/tools/srec2vram/
-	$(SREC2VRAM) $< 0x00000000 0x4000 > $@
-	cat image.ram | cut -c 1-2 > image3.ram
-	cat image.ram | cut -c 3-4 > image2.ram
-	cat image.ram | cut -c 5-6 > image1.ram
-	cat image.ram | cut -c 7-8 > image0.ram
+all: image.srec $(VRAMFILE) 
 
-%.srec: %.elf
-	$(OBJCOPY) $(SEGMENTS) -O srec $< $@
+crt0ram.o: crt0ram.S
+	$(LM32_CC) $(CFLAGS) -c crt0ram.S
 
-%.lst: %.elf
-	$(OBJDUMP) -h -S $< > $@
+main.o: main.c
+	$(LM32_CC) $(CFLAGS) -c main.c
 
-%.bin: %.elf
-	$(OBJCOPY) $(SEGMENTS) -O binary $< $@
-	chmod -x $@
+soc-hw.o: soc-hw.c
+	$(LM32_CC) $(CFLAGS) -c soc-hw.c
 
-image.elf: linker.ld $(OBJECTS) $(LIBS)
+image: crt0ram.o main.o soc-hw.o 
+	$(LM32_LD) $(LDFLAGS) -Map image.map -N -o image crt0ram.o main.o soc-hw.o
 
-%.elf:
-	$(LD) $(LDFLAGS) -T $< -N -o $@ $(OBJECTS) -L$(MMDIR)/firmware/libbase --start-group -lbase-light --end-group
-	chmod -x $@
+image.lst: image
+	$(LM32_OBJDUMP) -h -S $< > $@
 
-$(MMDIR)/firmware/libbase/libbase-light.a:
-	make -C $(MMDIR)/firmware/libbase/
+image.srec: image.lst
+	$(LM32_OBJCOPY) $(SEGMENTS) -O srec image image.srec
 
-.PHONY: clean depend $(LIBS)
-
-depend:
-	makedepend -Y -- $(CFLAGS) -- *.c
+$(VRAMFILE): image.srec
+	$(SREC2VRAM) image.srec 0x00000000 0x1000 > $(VRAMFILE)
 
 clean:
-	rm -f *.o *.elf *.bin *.lst *.srec *.ram .*~ *~ Makefile.bak
+	rm -f image image.lst image.bin image.srec image.map  *.o *.d *.ram
 
-# DO NOT DELETE
+DEPS := $(wildcard *.d)
+ifneq ($(DEPS),)
+include $(DEPS)
+endif
 
-main.o: ../../firmware/include/base/stdio.h
-main.o: ../../firmware/include/base/string.h
+

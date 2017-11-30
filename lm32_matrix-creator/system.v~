@@ -302,7 +302,7 @@ lm32_cpu lm0 (
 //---------------------------------------------------------------------------
 wb_bram #(
 	.adr_width( 14 ), //tamaño memoria ram, se debe modificar en sw y hw
-	.mem_file_name( bootram_file)
+	.mem_file_name0( bootram_file)
 
 ) bram0 (
 	.clk_i(  clk  ),

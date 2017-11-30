@@ -1,7 +1,7 @@
 LM32_PATH=/opt/rtems-4.11
 # Mico32 toolchain
 #
-CROSS_COMPILER=LD_LIBRARY_PATH=$(LM32_PATH)/lib  $(LM32_PATH)/bin/lm32-rtems4.11-
+CROSS_COMPILER=LD_LIBRARY_PATH=$(LM32_PATH)/lib  $(LM32_PATH)/bin/lm32-rtems-4.11-
 #CROSS_COMPILER=lm32-rtems4.11-
 
 # Choose a compiler - gcc or clang
